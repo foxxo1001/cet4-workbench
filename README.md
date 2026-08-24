@@ -29,7 +29,19 @@
 node server.js        # 或 python -m http.server
 ```
 
-## 部署（Cloudflare Workers）
+## 部署
+
+### 方式一：Cloudflare Pages（推荐，连 GitHub 自动部署）
+
+1. Fork / push 本仓库到你的 GitHub
+2. 打开 [Cloudflare Dashboard → Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages) → Create → Pages → **Connect to Git**
+3. 选择本仓库，构建配置：
+   - **Framework preset**: `None`
+   - **Build command**: 留空
+   - **Build output directory**: `/`
+4. Save and Deploy —— 之后每次 `git push` 自动重新部署
+
+### 方式二：Wrangler 手动部署
 
 ```bash
 npx wrangler login
