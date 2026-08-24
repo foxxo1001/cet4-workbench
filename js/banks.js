@@ -65,7 +65,7 @@ function renderQuota() {
   const input = $("quotaInput");
   if (!input) return;
   $("quotaSave").addEventListener("click", () => {
-    const q = Math.min(50, Math.max(1, Math.round(Number(input.value)) || 10));
+    const q = Math.min(200, Math.max(1, Math.round(Number(input.value)) || 10));
     S.dailyNew = q;
     save();
     toast("已保存：每日新词 " + q + " 个");
