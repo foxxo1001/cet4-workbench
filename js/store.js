@@ -17,6 +17,7 @@ let S = loadState() || {
   cursors: {},          // bankId -> 新词发到的下标
   bankId: "core",
   dailyNew: 10,
+  dailyReviewCap: 100,
   newToday: { date: "", count: 0 },
   checkins: {},         // date -> [bool x4]
   stats: { good: 0, fuzzy: 0, again: 0, reviews: 0 },
@@ -39,6 +40,7 @@ let S = loadState() || {
   if (!S.banks || typeof S.banks !== "object") S.banks = {};
   if (!S.cursors || typeof S.cursors !== "object") S.cursors = {};
   if (typeof S.dailyNew !== "number" || S.dailyNew < 1) S.dailyNew = 10;
+  if (typeof S.dailyReviewCap !== "number" || S.dailyReviewCap < 1) S.dailyReviewCap = 100;
 })();
 
 if (typeof window.CET_BANKS === "undefined" || !window.CET_BANKS[S.bankId]) S.bankId = "core";
@@ -68,19 +70,34 @@ function addDays(dateStr, n) {
 }
 const BOX_DAYS = [0, 1, 2, 4, 7, 15];
 function dailyNew() { return S.dailyNew; }
+function dailyReviewCap() { return S.dailyReviewCap || 100; }
 
-/* 队列：到期复习优先，再补今日新词 */
+/* 溢出的到期复习词顺延：把 due 推到明天（不改变 box，只推迟出现） */
+function deferOverflow(words, deferred, t) {
+  const tomorrow = addDays(t, 1);
+  for (const rec of deferred) {
+    if (words[rec.w]) words[rec.w].due = tomorrow;
+  }
+}
+
+/* 队列：到期复习优先（受上限约束），再补今日新词 */
 function buildQueue() {
   ensureNewQuota();
   const t = todayStr();
   const LIST = ACTIVE_BANK().list;
   const words = S.banks[S.bankId] || {};
-  const due = [], news = [];
+  const allDue = [], news = [];
   for (const rec of LIST) {
     const st = words[rec.w];
-    if (st && st.due <= t && st.box < 5) due.push(rec);
+    if (st && st.due <= t && st.box < 5) allDue.push(rec);
   }
-  due.sort((a, b) => words[a.w].box - words[b.w].box);
+  allDue.sort((a, b) => words[a.w].box - words[b.w].box);
+  // 复习上限：超出的部分顺延到明天，避免积压雪球
+  let due = allDue;
+  if (allDue.length > dailyReviewCap()) {
+    due = allDue.slice(0, dailyReviewCap());
+    deferOverflow(words, allDue.slice(dailyReviewCap()), t);
+  }
   let idx = S.cursor, quota = dailyNew() - S.newToday.count;
   while (idx < LIST.length && quota > 0) {
     const rec = LIST[idx];

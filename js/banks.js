@@ -69,7 +69,64 @@ function renderQuota() {
     S.dailyNew = q;
     save();
     toast("已保存：每日新词 " + q + " 个");
-    renderBanks();
+  });
+})();
+
+/* 每日复习上限 */
+(function () {
+  const input = $("reviewCapInput");
+  if (!input) return;
+  input.value = dailyReviewCap();
+  $("reviewCapSave").addEventListener("click", () => {
+    const q = Math.min(500, Math.max(10, Math.round(Number(input.value)) || 100));
+    S.dailyReviewCap = q;
+    save();
+    toast("已保存：每日复习上限 " + q + " 个");
+  });
+})();
+
+/* 数据备份 / 恢复 */
+(function () {
+  const exportBtn = $("exportBtn"), importBtn = $("importBtn"),
+        fileInput = $("importFile"), info = $("backupInfo");
+  if (!exportBtn) return;
+
+  function totalLearned() {
+    let n = 0;
+    for (const id of Object.keys(S.banks)) n += Object.keys(S.banks[id] || {}).length;
+    return n;
+  }
+  info.textContent = "当前已学 " + totalLearned() + " 词 · 备份于本机";
+
+  exportBtn.addEventListener("click", () => {
+    const payload = { app: "cet4-workbench", schema: 1, exportedAt: new Date().toISOString(), state: (() => { const c = Object.assign({}, S); delete c.words; delete c.cursor; return c; })() };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "cet4-backup-" + todayStr() + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("备份已下载");
+  });
+
+  importBtn.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (data.app !== "cet4-workbench" || !data.state || typeof data.state.banks !== "object") {
+          toast("文件格式不对，不是有效的备份"); return;
+        }
+        if (!confirm("导入将覆盖当前全部进度，确定继续？")) return;
+        localStorage.setItem(LS_KEY, JSON.stringify(data.state));
+        location.reload();
+      } catch (e) { toast("备份文件解析失败"); }
+    };
+    reader.readAsText(f);
+    fileInput.value = "";
   });
 })();
 
