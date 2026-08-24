@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CET-4 作战台</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="mark"></span>CET-4 作战台<span class="brand-sub">WORKBENCH</span></a>
+  <nav class="top-tabs" aria-label="导航">
+    <a href="index.html" class="tab-link" data-page="index">背词</a>
+    <a href="plan.html" class="tab-link" data-page="plan">计划</a>
+    <a href="stats.html" class="tab-link" data-page="stats">统计</a>
+  </nav>
+</header>
+
+<main>
+  <!-- 倒计时 -->
+  <section class="countdown">
+    <div>
+      <div class="cd-label">距四级笔试还有</div>
+      <div class="cd-days"><span id="cdDays">--</span><span class="cd-unit">天</span></div>
+    </div>
+    <div class="cd-sub">
+      <span class="cd-hms mono" id="cdHms">--:--:-- 后开考</span>
+      <span class="cd-date">考试日 <b id="examDateText">2026-12-12</b> 09:00 · 笔试（预计，以官方公告为准）</span>
+      <button class="btn btn-ghost" id="editDateBtn">修改日期</button>
+    </div>
+  </section>
+
+  <!-- 词库横幅 -->
+  <section class="bank-banner box" id="bankBanner">
+    <div class="bb-left">
+      <span class="tag tag-bank" id="curBankName">—</span>
+      <span class="bb-desc" id="curBankDesc"></span>
+    </div>
+    <div class="bb-right">
+      <span class="mono bb-progress" id="curBankProgress"></span>
+      <a class="btn btn-yellow btn-sm" href="banks.html">更换词库</a>
+    </div>
+  </section>
+
+  <div class="sec-head"><h2>今日任务</h2><div class="rule"></div></div>
+
+  <div class="word-grid">
+    <div>
+      <article class="box flashcard" id="flashcard">
+        <div class="fc-top">
+          <span class="tag" style="background:var(--card);color:var(--ink);" id="fcQueueTag">队列 --</span>
+          <span class="tag tag-white" id="fcMode">NEW</span>
+        </div>
+        <div class="fc-body">
+          <div class="fc-word" id="fcWord">—</div>
+          <div class="fc-phones mono" id="fcPhones"></div>
+          <div class="fc-pos" id="fcPos"></div>
+          <div class="fc-trans hidden-zh" id="fcZh"></div>
+          <div class="fc-extra" id="fcExtra"></div>
+          <div class="fc-tip" id="fcTip">先回忆词义，再翻面对照</div>
+        </div>
+        <div class="fc-actions" id="fcActions"></div>
+      </article>
+      <p class="kbd-hint mono">SPACE 翻面 · 1 认识 · 2 模糊 · 3 不认识 · S 发音</p>
+    </div>
+
+    <aside class="side-stack">
+      <div class="box">
+        <div class="stat-line"><span>待复习</span><b id="stDue">0</b></div>
+        <div class="stat-line"><span>今日新词</span><b id="stNew">0 / 10</b></div>
+        <div class="stat-line"><span>已掌握词数</span><b id="stKnown">0</b></div>
+        <div class="stat-line"><span>词库总量</span><b id="stTotal">0</b></div>
+      </div>
+      <div class="box streak-box">
+        <div class="streak-num" id="stStreak">0</div>
+        <div class="streak-cap">连续打卡天数</div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="主导航">
+  <a href="index.html" class="tab-btn" data-page="index">单词</a>
+  <a href="plan.html" class="tab-btn" data-page="plan">计划</a>
+  <a href="banks.html" class="tab-btn" data-page="banks">词库</a>
+  <a href="stats.html" class="tab-btn" data-page="stats">统计</a>
+</nav>
+
+<!-- 修改日期弹窗 -->
+<div class="modal-mask" id="dateModal">
+  <div class="box modal">
+    <h3>设置考试日期</h3>
+    <input type="date" id="dateInput">
+    <p class="modal-note">默认填入 2026 年 12 月 12 日（目前各方公布的预计日期）。官方正式通知发布后请以此处更新为准。</p>
+    <div class="modal-row">
+      <button class="btn btn-ghost" id="dateCancel">取消</button>
+      <button class="btn btn-red" id="dateSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/bank-core.js"></script>
+<script src="js/bank-freq.js"></script>
+<script src="js/bank-exam.js"></script>
+<script src="js/bank-full.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+<script src="js/words.js"></script>
+</body>
+</html>

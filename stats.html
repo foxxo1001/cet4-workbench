@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>统计 · CET-4 作战台</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="mark"></span>CET-4 作战台<span class="brand-sub">WORKBENCH</span></a>
+  <nav class="top-tabs" aria-label="导航">
+    <a href="index.html" class="tab-link" data-page="index">背词</a>
+    <a href="plan.html" class="tab-link" data-page="plan">计划</a>
+    <a href="stats.html" class="tab-link" data-page="stats">统计</a>
+  </nav>
+</header>
+
+<main class="narrow">
+  <div class="sec-head"><h2 id="barsTitle">掌握分布</h2><div class="rule"></div></div>
+  <div class="box bar-wrap" id="barWrap"></div>
+
+  <div class="sec-head"><h2>近 14 天打卡</h2><div class="rule"></div></div>
+  <div class="box done-panel">
+    <div class="check-strip" id="historyStrip"></div>
+  </div>
+
+  <div class="sec-head"><h2>总览</h2><div class="rule"></div></div>
+  <div class="box">
+    <div class="stat-line"><span>首次使用日期</span><b class="mono" id="sumStart">—</b></div>
+    <div class="stat-line"><span>当前词库已学（进入复习）</span><b id="sumLearned">0 词</b></div>
+    <div class="stat-line"><span>累计答「认识」次数</span><b id="sumGood">0 次</b></div>
+    <div class="stat-line"><span>累计答「不认识」次数</span><b id="sumAgain">0 次</b></div>
+    <div class="stat-line"><span>累计答题总数</span><b id="sumTotal">0 次</b></div>
+  </div>
+
+  <div class="sec-head"><h2>全部词库进度</h2><div class="rule"></div></div>
+  <div class="box" id="allBanksProgress"></div>
+</main>
+
+<nav class="tabbar" aria-label="主导航">
+  <a href="index.html" class="tab-btn" data-page="index">单词</a>
+  <a href="plan.html" class="tab-btn" data-page="plan">计划</a>
+  <a href="banks.html" class="tab-btn" data-page="banks">词库</a>
+  <a href="stats.html" class="tab-btn" data-page="stats">统计</a>
+</nav>
+
+<div id="toast"></div>
+
+<script src="js/bank-core.js"></script>
+<script src="js/bank-freq.js"></script>
+<script src="js/bank-exam.js"></script>
+<script src="js/bank-full.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+<script src="js/stats.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>计划 · CET-4 作战台</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="mark"></span>CET-4 作战台<span class="brand-sub">WORKBENCH</span></a>
+  <nav class="top-tabs" aria-label="导航">
+    <a href="index.html" class="tab-link" data-page="index">背词</a>
+    <a href="plan.html" class="tab-link" data-page="plan">计划</a>
+    <a href="stats.html" class="tab-link" data-page="stats">统计</a>
+  </nav>
+</header>
+
+<main>
+  <div class="sec-head"><h2>阶段作战计划</h2><div class="rule"></div></div>
+  <div class="phase-grid" id="phaseGrid">
+
+    <div class="box phase-card phase-1" data-phase="1">
+      <div class="phase-head"><span>第一阶段 · 筑基</span><span class="phase-badge">当前阶段</span></div>
+      <ul class="phase-body">
+        <li>核心词汇第一轮：每日 30 词，混速过完全部高频词</li>
+        <li>每日精听 1 篇短对话 / 长对话，逐句跟读</li>
+        <li>语法补漏：长难句拆解，每日 5 句</li>
+        <li>泛读外刊或真题文章，累计每天 20 分钟</li>
+      </ul>
+    </div>
+
+    <div class="box phase-card phase-2" data-phase="2">
+      <div class="phase-head"><span>第二阶段 · 强化</span><span class="phase-badge">当前阶段</span></div>
+      <ul class="phase-body">
+        <li>真题阅读精读：每日 2 篇，全文翻译出错句</li>
+        <li>词汇第二轮：只攻标记「模糊 / 不认识」的词</li>
+        <li>听力精听升级：新闻讲座，练习记笔记</li>
+        <li>翻译专项：每日 1 段汉译英，积累主题词块</li>
+      </ul>
+    </div>
+
+    <div class="box phase-card phase-3" data-phase="3">
+      <div class="phase-head"><span>第三阶段 · 冲刺</span><span class="phase-badge">当前阶段</span></div>
+      <ul class="phase-body">
+        <li>每 2 天 1 套完整真题，严格计时模拟</li>
+        <li>错题复盘：建立错因清单，考前只看错题</li>
+        <li>作文模板内化：背诵 5 类框架并默写检验</li>
+        <li>考前一周回归词汇第三轮与高频听力场景词</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>每日清单</h2><div class="rule"></div></div>
+  <div class="box daily-check" id="dailyCheck"></div>
+
+  <div class="sec-head"><h2>每周课表</h2><div class="rule"></div></div>
+  <div class="table-scroll">
+    <table class="week-table">
+      <thead><tr><th>日</th><th>上午</th><th>下午 / 晚上</th></tr></thead>
+      <tbody>
+        <tr><td><b>周一</b></td><td>词汇 30 + 听力精听 1 篇</td><td>长难句 5 句 + 泛读 20 分钟</td></tr>
+        <tr><td><b>周二</b></td><td>词汇 30 + 真题阅读精读 1 篇</td><td>听力跟读 + 复盘昨日错题</td></tr>
+        <tr><td><b>周三</b></td><td>词汇 30 + 听力精听 1 篇</td><td>翻译 1 段 + 主题词块整理</td></tr>
+        <tr><td><b>周四</b></td><td>词汇 30 + 真题阅读精读 1 篇</td><td>长难句 5 句 + 听力泛听</td></tr>
+        <tr><td><b>周五</b></td><td>词汇 30 + 听力精听 1 篇</td><td>作文段落仿写 1 段</td></tr>
+        <tr><td><b>周六</b></td><td>本周错题总复盘</td><td>限时完成 1 套真题（拆半场亦可）</td></tr>
+        <tr><td><b>周日</b></td><td>词汇周复习（只过到期词）</td><td>轻量日：泛听 + 下周计划排定</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="主导航">
+  <a href="index.html" class="tab-btn" data-page="index">单词</a>
+  <a href="plan.html" class="tab-btn" data-page="plan">计划</a>
+  <a href="banks.html" class="tab-btn" data-page="banks">词库</a>
+  <a href="stats.html" class="tab-btn" data-page="stats">统计</a>
+</nav>
+
+<div id="toast"></div>
+
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+<script src="js/plan.js"></script>
+</body>
+</html>
