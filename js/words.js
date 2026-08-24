@@ -13,7 +13,7 @@ let current = null;
 
 function knownCount() {
   const words = S.banks[S.bankId] || {};
-  return Object.values(words).filter(x => x.box >= 4).length;
+  return Object.values(words).filter(x => x.box >= KNOWN_BOX).length;
 }
 
 function renderBankBanner() {
@@ -32,6 +32,8 @@ function renderSideStats() {
   $("stKnown").textContent = knownCount();
   $("stTotal").textContent = ACTIVE_BANK().list.length;
   $("stStreak").textContent = streak();
+  const etaEl = $("stEta");
+  if (etaEl) etaEl.textContent = etaText();
 }
 
 function speak(word) {
@@ -171,6 +173,7 @@ function grade(k) {
     S.retryQueue = S.retryQueue || [];
     if (!S.retryQueue.includes(rec.w)) S.retryQueue.push(rec.w);
     save();
+    logDaily(isNew);
     S.stats[k] = (S.stats[k] || 0) + 1;
     S.stats.reviews = (S.stats.reviews || 0) + 1;
     markCheckinAuto();
@@ -182,6 +185,7 @@ function grade(k) {
     return;
   }
   words[rec.w] = { box, due: addDays(todayStr(), BOX_DAYS[box]) };
+  logDaily(isNew);
   S.stats[k] = (S.stats[k] || 0) + 1;
   S.stats.reviews = (S.stats.reviews || 0) + 1;
   markCheckinAuto();

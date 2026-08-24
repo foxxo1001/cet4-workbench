@@ -10,7 +10,7 @@ function renderBars() {
     ["未学", w => !words[w.w], "#D8D2C4"],
     ["巩固期(box1-2)", w => words[w.w] && words[w.w].box <= 2, "#FFC914"],
     ["熟悉期(box3)", w => words[w.w] && words[w.w].box === 3, "#3D6DC2"],
-    ["已掌握(box4+)", w => words[w.w] && words[w.w].box >= 4, "#1B9E8F"]
+    ["已掌握(box5毕业)", w => words[w.w] && words[w.w].box >= KNOWN_BOX, "#1B9E8F"]
   ];
   const total = LIST.length;
   $("barWrap").innerHTML = buckets.map(([label, fn, color]) => {
@@ -51,7 +51,7 @@ function renderAllBanks() {
     if (!bank) return;
     const rec = S.banks[id] || {};
     const learned = Object.keys(rec).length;
-    const known = Object.values(rec).filter(x => x.box >= 4).length;
+    const known = Object.values(rec).filter(x => x.box >= KNOWN_BOX).length;
     const line = document.createElement("div");
     line.className = "stat-line";
     line.innerHTML = `<span>${bank.name}<br><small style="font-weight:600;color:var(--muted);">已掌握 ${known} 词</small></span>
@@ -60,7 +60,33 @@ function renderAllBanks() {
   });
 }
 
+/* 近 14 天学词趋势：dailyLog 采集的每日新词柱状图（无记录的日子显示为空柱） */
+function renderTrend() {
+  const wrap = $("trendWrap");
+  if (!wrap) return;
+  const t = todayStr();
+  const data = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = addDays(t, -i);
+    const log = (S.dailyLog || {})[d] || {};
+    data.push({ d, nw: log.new || 0, rv: log.reviews || 0 });
+  }
+  const max = Math.max(1, ...data.map(x => x.nw));
+  wrap.innerHTML =
+    `<div style="display:flex;align-items:flex-end;gap:5px;height:90px;padding:6px 4px 0;">` +
+    data.map(x =>
+      `<div title="${x.d} · 新词 ${x.nw} · 答题 ${x.rv}" ` +
+      `style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;text-align:center;">` +
+      `<span class="mono" style="font-size:.6rem;font-weight:800;color:${x.nw ? "var(--ink)" : "var(--muted)"};opacity:.75;">${x.d.slice(8)}</span>` +
+      `<div style="height:${Math.round(x.nw / max * 62)}px;background:${x.nw ? "var(--teal)" : "#D8D2C4"};border:2px solid var(--ink);border-radius:2px;margin-top:3px;"></div>` +
+      `</div>`
+    ).join("") +
+    `</div>
+     <p class="modal-note" style="margin-top:10px;">每日新学词数 · 近 14 天。当前词库 ${etaText()}</p>`;
+}
+
 renderBars();
+renderTrend();
 renderHistory();
 renderSummary();
 renderAllBanks();

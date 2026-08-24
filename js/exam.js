@@ -24,7 +24,10 @@ let scoreGood = 0, scoreBad = 0;
 function refillPool() {
   // 未做过的题优先；全做完后洗牌重来
   let fresh = ALL.filter(x => !done.has(x.w));
-  if (fresh.length === 0) { done.clear(); saveExamDone(done); fresh = ALL.slice(); }
+  if (fresh.length === 0) {
+    done.clear(); saveExamDone(done); fresh = ALL.slice();
+    toast("251 题一轮完成！已重新开始，错题词仍在复习队列里");
+  }
   for (let i = fresh.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [fresh[i], fresh[j]] = [fresh[j], fresh[i]];
