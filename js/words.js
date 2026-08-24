@@ -60,6 +60,8 @@ function renderCard() {
     ' <button class="speak-btn" id="speakBtn" type="button">发音</button>';
   const sb = $("speakBtn");
   sb.addEventListener("click", () => speak(rec.w));
+  // 新词自动发音
+  if (S.autoSpeak !== false) setTimeout(() => speak(rec.w), 350);
   $("fcPos").textContent = "";
   $("fcZh").innerHTML = fmtTrans(rec);
   $("fcZh").classList.add("hidden-zh");

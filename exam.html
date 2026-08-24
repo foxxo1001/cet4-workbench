@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>真题 · CET-4 作战台</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="theme-color" content="#161412">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.exam-q{font-size:1.05rem;font-weight:700;line-height:1.7;text-align:left;}
+.choice{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  font-family:inherit;font-weight:800;font-size:.98rem;color:var(--ink);
+  background:#fff;border:var(--bw) solid var(--ink);border-radius:var(--radius);
+  padding:12px 14px;margin-bottom:10px;cursor:pointer;min-height:48px;
+}
+.choice:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink);}
+.choice .key{
+  width:28px;height:28px;border:2px solid var(--ink);border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:ui-monospace,monospace;font-weight:900;background:var(--card);
+}
+.choice.correct{background:var(--teal);color:#fff;}
+.choice.correct .key{background:#fff;color:var(--ink);}
+.choice.wrong{background:var(--red);color:#fff;}
+.choice.wrong .key{background:#fff;color:var(--ink);}
+.choice.dim{opacity:.45;}
+.choice:disabled{cursor:default;transform:none!important;box-shadow:none!important;}
+.explain-box{margin-top:6px;}
+.exam-word-tag{display:inline-block;background:var(--yellow);border:2px solid var(--ink);padding:2px 8px;font-weight:900;font-size:.8rem;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="mark"></span>CET-4 作战台<span class="brand-sub">WORKBENCH</span></a>
+  <nav class="top-tabs" aria-label="导航">
+    <a href="index.html" class="tab-link" data-page="index">背词</a>
+    <a href="plan.html" class="tab-link" data-page="plan">计划</a>
+    <a href="stats.html" class="tab-link" data-page="stats">统计</a>
+  </nav>
+</header>
+
+<main class="narrow">
+  <div class="sec-head"><h2>真题选择题</h2><div class="rule"></div></div>
+  <p class="page-note">251 道真题单项选择题，来自百词斩四级真题词书。选完立即判分并展示解析——答错的词会自动加入当前词库的复习队列（box1）。</p>
+
+  <article class="box flashcard" id="examCard" style="min-height:auto;">
+    <div class="fc-top">
+      <span class="tag tag-white mono" id="exProgress">-- / 251</span>
+      <span class="tag tag-white mono" id="exScore">答对 0 · 答错 0</span>
+    </div>
+    <div class="fc-body" style="align-items:stretch;">
+      <div style="text-align:center;margin-bottom:6px;"><span class="tag" id="exDone">已完成全部 251 题</span></div>
+      <div class="exam-q" id="exQuestion">—</div>
+      <div id="exChoices" style="margin-top:16px;"></div>
+      <div class="x-block explain-box hidden-extra" id="exExplainWrap">
+        <span class="x-cap">解析</span>
+        <div id="exExplain" style="font-size:.86rem;font-weight:600;line-height:1.7;"></div>
+        <span class="exam-word-tag" id="exWordTag"></span>
+      </div>
+    </div>
+    <div class="fc-actions" id="exActions"></div>
+  </article>
+</main>
+
+<nav class="tabbar" aria-label="主导航">
+  <a href="index.html" class="tab-btn" data-page="index">单词</a>
+  <a href="plan.html" class="tab-btn" data-page="plan">计划</a>
+  <a href="banks.html" class="tab-btn" data-page="banks">词库</a>
+  <a href="stats.html" class="tab-btn" data-page="stats">统计</a>
+  <a href="exam.html" class="tab-btn" data-page="exam">真题</a>
+</nav>
+
+<div id="toast"></div>
+
+<script src="js/store.js"></script>
+<script src="js/bank-core.js"></script>
+<script src="js/bank-freq.js"></script>
+<script src="js/bank-exam.js"></script>
+<script src="js/bank-full.js"></script>
+<script src="js/app.js"></script>
+<script src="js/exam.js"></script>
+</body>
+</html>

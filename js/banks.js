@@ -130,5 +130,13 @@ function renderQuota() {
   });
 })();
 
+/* 背词设置：自动发音 */
+(function(){
+  const chk=$("autoSpeakChk");
+  if(!chk)return;
+  chk.checked=S.autoSpeak!==false;
+  chk.addEventListener("change",()=>{S.autoSpeak=chk.checked;save();toast(chk.checked?"自动发音已开启":"自动发音已关闭");});
+})();
+
 renderBanks();
 renderQuota();

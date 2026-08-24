@@ -4,7 +4,8 @@ const ASSETS = [
   "/", "/index.html", "/banks.html", "/plan.html", "/stats.html", "/404.html",
   "/css/style.css", "/manifest.json",
   "/js/store.js", "/js/app.js", "/js/words.js", "/js/banks.js", "/js/plan.js", "/js/stats.js",
-  "/js/bank-core.js", "/js/bank-freq.js", "/js/bank-exam.js", "/js/bank-full.js",
+  "/js/bank-core.js", "/js/bank-freq.js", "/js/bank-exam.js", "/js/bank-full.js", "/js/exam.js",
+  "/exam.html",
   "/icons/icon-192.png", "/icons/icon-512.png"
 ];
 
