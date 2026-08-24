@@ -149,7 +149,7 @@ function grade(k) {
   ensureNewQuota();
   const words = S.banks[S.bankId];
   const isNew = !words[rec.w];
-  let box;
+  let box, dueOffset;
   if (isNew) {
     box = k === "again" ? 0 : k === "fuzzy" ? 1 : 2;
     const LIST = ACTIVE_BANK().list;
@@ -158,6 +158,21 @@ function grade(k) {
   } else {
     const cur = words[rec.w].box;
     box = k === "again" ? Math.max(0, cur - 1) : k === "fuzzy" ? cur : Math.min(5, cur + 1);
+  }
+  /* 答「不认识」：今天队列末尾再过一遍，第二天巩固复习 */
+  if (k === "again") {
+    dueOffset = 1;                       // 明天到期（巩固）
+    words[rec.w] = { box, due: addDays(todayStr(), dueOffset), againToday: true };
+    save();
+    S.stats[k] = (S.stats[k] || 0) + 1;
+    S.stats.reviews = (S.stats.reviews || 0) + 1;
+    markCheckinAuto();
+    toast("已排到队尾，稍后再来一次 · 明天巩固");
+    nextCard();
+    // 把这个词追加到当前队列末尾（当天内重复）
+    Q.queue.push(rec);
+    $("fcQueueTag").textContent = `剩余 ${Q.queue.length}`;
+    return;
   }
   words[rec.w] = { box, due: addDays(todayStr(), BOX_DAYS[box]) };
   S.stats[k] = (S.stats[k] || 0) + 1;
