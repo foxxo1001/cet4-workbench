@@ -42,7 +42,7 @@ function makeEnv(store) {
 
 function boot(store) {
   const env = makeEnv(store);
-  const src = [read("js/store.js"), read("js/app.js"), read("js/words.js")].join("\n;\n");
+  const src = [read("js/store.js"), read("js/ai.js"), read("js/app.js"), read("js/words.js")].join("\n;\n");
   const factory = new Function(
     "window", "document", "localStorage", "location", "toast",
     "setInterval", "setTimeout",

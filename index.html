@@ -84,6 +84,19 @@
       </div>
     </aside>
   </div>
+
+  <!-- 词文串学（AI 增强模块，未启用时隐藏） -->
+  <section class="box quota-box" id="passageSec" style="display:none;">
+    <div class="quota-title">📖 词文串学</div>
+    <p class="modal-note" style="margin-bottom:10px;">AI 根据你在学的单词（<b>优先今日到期复习词</b>）写一篇外刊风格英文短文，目标词高亮显示——先读文回忆词义，再对照下方释义。</p>
+    <div class="x-block" id="passageEn" style="background:#fff;">
+      <span style="color:var(--muted);font-weight:700;font-size:.85rem;">点下方按钮生成今日短文</span>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-blue btn-sm" id="passageGen">✨ 生成今日短文</button>
+      <span class="modal-note" style="margin:0;">每日上限 10 篇 · 结果当日缓存</span>
+    </div>
+  </section>
 </main>
 
 <nav class="tabbar" aria-label="主导航">

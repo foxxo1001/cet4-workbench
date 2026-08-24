@@ -7,6 +7,7 @@
 "use strict";
 
 const AI_DAILY_LIMIT = 30;
+const PASSAGE_DAILY_LIMIT = 10;
 const AI_PROVIDERS = {
   zhipu:       { label: "智谱 GLM",    base: "https://open.bigmodel.cn/api/paas/v4",                model: "glm-4-flash" },
   deepseek:    { label: "DeepSeek",    base: "https://api.deepseek.com/v1",                         model: "deepseek-chat" },
@@ -19,6 +20,15 @@ const AI_SYS =
   "你是 CET-4 英语词汇老师。用中文紧凑回答：【记忆】词根词缀拆解或联想记忆法；" +
   "【辨析】1-2 个易混词对比或高频搭配；【场景】一个校园/考试相关的中文例句（英文原词保留）。" +
   "不超过 180 字，不要寒暄。结尾注明：AI 生成仅供参考。";
+
+/* 词文串学 system：外刊风格短文 */
+const PASSAGE_SYS =
+  "你是外刊专栏作者兼 CET-4 词汇老师。请用所给单词写一篇 90-140 词的英文短文，" +
+  "风格模仿 The Economist / Guardian 的教育、科技或社会类短评，观点清晰有细节。" +
+  "要求：① 每个指定单词至少自然使用一次（可用其屈折变化）；② 难度贴合 CET-4，" +
+  "其余词汇控制在高中至四级范围；③ 短文后另起一行，先用一句中文概括主旨（以「概要：」开头），" +
+  "再列出文中出现的目标词及其在文中的词性和中文释义。全文不要任何 markdown 标记。" +
+  "结尾注明：AI 生成短文仅供参考。";
 
 function aiEnabled() {
   return !!(S.aiConfig && S.aiConfig.on);
@@ -42,7 +52,8 @@ function aiUserPrompt(rec) {
   return "单词 " + rec.w + (zh ? "（当前释义：" + zh + "）" : "") + "。请按系统设定给出记忆法讲解。";
 }
 
-async function aiCall(user) {
+async function aiCall(user, systemPrompt) {
+  const sys = systemPrompt || AI_SYS;
   let res;
   if (aiLocalMode()) {
     const base = S.aiConfig.base.replace(/\/+$/, "");
@@ -51,15 +62,15 @@ async function aiCall(user) {
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + S.aiConfig.key.trim() },
       body: JSON.stringify({
         model: (S.aiConfig.model || "").trim() || "glm-4-flash",
-        messages: [{ role: "system", content: AI_SYS }, { role: "user", content: user }],
-        temperature: 0.7, max_tokens: 600
+        messages: [{ role: "system", content: sys }, { role: "user", content: user }],
+        temperature: 0.8, max_tokens: 900
       })
     });
   } else {
     res = await fetch("/api/ai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user })
+      body: JSON.stringify({ user, system: sys })
     });
   }
   let data = null;
@@ -117,5 +128,120 @@ async function aiExplain(rec) {
 
 /* 设置页连通性测试 */
 async function aiPing() {
-  return aiCall("请只回复四个字：链路正常");
+  return aiCall("请只回复四个字：链路正常", PASSAGE_SYS);
 }
+
+/* ============ 词文串学 ============ */
+/* 选词：到期复习优先（due≤今天且未毕业），不足补已学词，上限 8；可用词 <3 返回 null */
+function pickWordsForPassage() {
+  const t = todayStr();
+  const LIST = ACTIVE_BANK().list;
+  const words = S.banks[S.bankId] || {};
+  const due = [], learned = [];
+  for (const rec of LIST) {
+    const st = words[rec.w];
+    if (!st || st.box >= KNOWN_BOX) continue;
+    (st.due <= t ? due : learned).push(rec.w);
+  }
+  const picked = due.concat(learned).slice(0, 8);
+  return picked.length >= 3 ? picked : null;
+}
+
+/* 生成当日短文（force=true 强制重生成，忽略缓存与同日去重）*/
+async function aiGeneratePassage(force) {
+  if (!aiEnabled()) return;
+  aiEnsureCount();
+  const ws = pickWordsForPassage();
+  const sec = $("passageSec");
+  if (!ws) {
+    if (sec) sec.style.display = "none";
+    return;
+  }
+  if (sec) sec.style.display = "";
+
+  /* 缓存：同一天 + 同词库 + 同一批词直接复用 */
+  if (!force && S.passage && S.passage.date === todayStr() &&
+      S.passage.bank === S.bankId &&
+      JSON.stringify(S.passage.words) === JSON.stringify(ws)) {
+    aiRenderPassage();
+    return;
+  }
+
+  if ((S.passageCount || { count: 0 }).count >= PASSAGE_DAILY_LIMIT) {
+    toast("今日词文串学已达上限 " + PASSAGE_DAILY_LIMIT + " 篇，明天再来");
+    return;
+  }
+
+  const btn = $("passageGen");
+  if (btn) { btn.disabled = true; btn.textContent = "✨ 生成中…"; }
+  const enBox = $("passageEn");
+  if (enBox) enBox.innerHTML = '<span style="color:var(--muted);font-weight:700;">✨ AI 正在根据你的单词写外刊风短文…</span>';
+
+  try {
+    const zhList = ws.map(w => {
+      const rec = ACTIVE_BANK().list.find(x => x.w === w);
+      return w + (rec && rec.trans && rec.trans[0] ? "(" + rec.trans[0].zh.slice(0, 20) + ")" : "");
+    });
+    const user = "请围绕这些 CET-4 单词写短文：" + zhList.join("、");
+    const content = await aiCall(user, PASSAGE_SYS);
+
+    const html =
+      '<div class="passage-en">' + aiHighlightWords(aiEsc(content), ws) + "</div>" +
+      '<div class="passage-words">本篇单词：' + ws.map(w => "<b>" + aiEsc(w) + "</b>").join(" · ") + "</div>";
+    S.passage = { date: todayStr(), bank: S.bankId, words: ws, text: content };
+    aiEnsureCount();
+    S.passageCount = S.passageCount || { date: "", count: 0 };
+    if (S.passageCount.date !== todayStr()) S.passageCount = { date: todayStr(), count: 0 };
+    S.passageCount.count++;
+    save();
+
+    aiRenderPassage(html);
+    if (btn) { btn.disabled = false; btn.textContent = "🔄 换一篇"; }
+  } catch (e) {
+    if (enBox) enBox.innerHTML = '<span style="color:var(--red);font-weight:700;">生成失败：' + aiEsc(e.message) + "</span>";
+    if (btn) { btn.disabled = false; btn.textContent = "✨ 再试一次"; }
+  }
+}
+
+/* 目标词高亮（整词匹配，不区分大小写）*/
+function aiHighlightWords(escapedHtml, words) {
+  let out = escapedHtml;
+  for (const w of words) {
+    const re = new RegExp("\\b(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\w*)\\b", "gi");
+    out = out.replace(re, "<mark>$1</mark>");
+  }
+  return out;
+}
+
+/* 渲染：无参时从 S.passage 缓存取；有参直接用新生成的 html */
+function aiRenderPassage(html) {
+  const enBox = $("passageEn");
+  if (!enBox) return;
+  const p = S.passage;
+  if (!html && (!p || !p.text)) return;
+  const ws = (p && p.words) || [];
+  const text = html || "";
+  const bodyHtml = html ||
+    '<div class="passage-en">' + aiHighlightWords(aiEsc(p.text), ws) + "</div>" +
+    '<div class="passage-words">本篇单词：' + ws.map(w => "<b>" + aiEsc(w) + "</b>").join(" · ") + "</div>";
+  enBox.innerHTML = bodyHtml;
+}
+
+/* 区块入口：AI 关闭或可用词不足时隐藏整个区块 */
+function aiRenderPassageSection() {
+  const sec = $("passageSec");
+  if (!sec) return;
+  if (!aiEnabled()) { sec.style.display = "none"; return; }
+  sec.style.display = "";
+  if (pickWordsForPassage() === null) {
+    sec.style.display = "none";
+    return;
+  }
+  /* 已有当日缓存则先展示，按钮保持「换一篇」 */
+  if (S.passage && S.passage.date === todayStr()) {
+    aiRenderPassage();
+    const btn = $("passageGen");
+    if (btn) btn.textContent = "🔄 换一篇";
+  }
+}
+

@@ -59,7 +59,7 @@ function boot(store, files, banksExtra) {
   return { api, env };
 }
 
-const WORDS_FILES = ["js/store.js", "js/app.js", "js/words.js"];
+const WORDS_FILES = ["js/store.js", "js/ai.js", "js/app.js", "js/words.js"];
 
 let fail = 0;
 const ok = (c, name) => { console.log((c ? "PASS" : "FAIL") + "  " + name); if (!c) fail++; };

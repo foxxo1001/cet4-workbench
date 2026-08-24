@@ -209,6 +209,14 @@ function grade(k) {
   nextCard();
 }
 
+/* 词文串学按钮绑定（index 页） */
+(function () {
+  const btn = $("passageGen");
+  if (!btn) return;
+  aiRenderPassageSection();
+  btn.addEventListener("click", () => aiGeneratePassage(!!S.passage));
+})();
+
 /* 键盘：空格翻面 / 1·2·3 评级 / S 发音 */
 window.addEventListener("keydown", e => {
   if ($("dateModal") && $("dateModal").classList.contains("open")) return;
