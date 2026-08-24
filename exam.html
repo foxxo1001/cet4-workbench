@@ -16,8 +16,10 @@
   font-family:inherit;font-weight:800;font-size:.98rem;color:var(--ink);
   background:#fff;border:var(--bw) solid var(--ink);border-radius:var(--radius);
   padding:12px 14px;margin-bottom:10px;cursor:pointer;min-height:48px;
+  transition:transform .06s ease, box-shadow .06s ease, background .15s ease, opacity .15s ease;
 }
 .choice:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink);}
+.choice:active{transform:translate(2px,2px);box-shadow:none;}
 .choice .key{
   width:28px;height:28px;border:2px solid var(--ink);border-radius:var(--radius);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
