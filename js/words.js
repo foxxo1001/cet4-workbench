@@ -149,6 +149,10 @@ function grade(k) {
   ensureNewQuota();
   const words = S.banks[S.bankId];
   const isNew = !words[rec.w];
+  /* 本轮评分即消费重试队列：先移出，「不认识」分支会在下方重新入队 */
+  if ((S.retryQueue || []).includes(rec.w)) {
+    S.retryQueue = S.retryQueue.filter(w => w !== rec.w);
+  }
   let box, dueOffset;
   if (isNew) {
     box = k === "again" ? 0 : k === "fuzzy" ? 1 : 2;
@@ -159,10 +163,13 @@ function grade(k) {
     const cur = words[rec.w].box;
     box = k === "again" ? Math.max(0, cur - 1) : k === "fuzzy" ? cur : Math.min(5, cur + 1);
   }
-  /* 答「不认识」：今天队列末尾再过一遍，第二天巩固复习 */
+  /* 答「不认识」：记录进当日重试队列（持久化，刷新不丢），今天队尾再过一遍，第二天巩固复习 */
   if (k === "again") {
     dueOffset = 1;                       // 明天到期（巩固）
-    words[rec.w] = { box, due: addDays(todayStr(), dueOffset), againToday: true };
+    words[rec.w] = { box, due: addDays(todayStr(), dueOffset) };
+    S.retryDate = todayStr();
+    S.retryQueue = S.retryQueue || [];
+    if (!S.retryQueue.includes(rec.w)) S.retryQueue.push(rec.w);
     save();
     S.stats[k] = (S.stats[k] || 0) + 1;
     S.stats.reviews = (S.stats.reviews || 0) + 1;

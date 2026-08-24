@@ -19,6 +19,7 @@ let S = loadState() || {
   dailyNew: 10,
   dailyReviewCap: 100,
   newToday: { date: "", count: 0 },
+  retryQueue: [],       // 当日答「不认识」的词，今天队尾重来（持久化，刷新不丢）
   checkins: {},         // date -> [bool x4]
   stats: { good: 0, fuzzy: 0, again: 0, reviews: 0 },
   startDate: todayStr()
@@ -61,6 +62,9 @@ function save() {
 
 function ensureNewQuota() {
   if (S.newToday.date !== todayStr()) S.newToday = { date: todayStr(), count: 0 };
+  /* retryQueue 是当日语义：跨天自动清空 */
+  const t = todayStr();
+  if (S.retryDate !== t && (S.retryQueue || []).length) { S.retryQueue = []; S.retryDate = t; }
 }
 function addDays(dateStr, n) {
   const d = new Date(dateStr + "T00:00:00"); d.setDate(d.getDate() + n);
@@ -102,7 +106,14 @@ function buildQueue() {
     if (!words[rec.w]) { news.push(rec); quota--; }
     idx++;
   }
-  return { queue: [...due, ...news], dueCount: due.length, newCount: news.length };
+  /* 当日重试词（「不认识」）排在最末尾，持久化在 localStorage，刷新不丢 */
+  ensureNewQuota();
+  const retries = [];
+  for (const w of (S.retryQueue || [])) {
+    const rec = LIST.find(x => x.w === w);   // 在册即入列；grade() 评分时会从队列移除
+    if (rec && !due.includes(rec) && !news.includes(rec)) retries.push(rec);
+  }
+  return { queue: [...due, ...news, ...retries], dueCount: due.length, newCount: news.length };
 }
 
 function switchBank(id) {
