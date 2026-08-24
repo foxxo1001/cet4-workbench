@@ -138,5 +138,61 @@ function renderQuota() {
   chk.addEventListener("change",()=>{S.autoSpeak=chk.checked;save();toast(chk.checked?"自动发音已开启":"自动发音已关闭");});
 })();
 
+/* AI 讲解设置 */
+(function () {
+  const preset = $("aiPreset");
+  if (!preset) return;
+  const baseI = $("aiBaseInput"), modelI = $("aiModelInput"),
+        keyI = $("aiKeyInput"), onChk = $("aiOnChk"),
+        saveBtn = $("aiSave"), testBtn = $("aiTestBtn"), status = $("aiStatus");
+
+  function applyPreset(id) {
+    const p = AI_PROVIDERS[id] || AI_PROVIDERS.custom;
+    if (id !== "custom") { baseI.value = p.base; modelI.value = p.model; }
+  }
+  /* 回填当前配置 */
+  const cfg = S.aiConfig || {};
+  preset.value = cfg.preset || "zhipu";
+  baseI.value  = cfg.base  || AI_PROVIDERS.zhipu.base;
+  modelI.value = cfg.model || "";
+  keyI.value   = cfg.key   || "";
+  onChk.checked = !!cfg.on;
+  $("aiCb").style.background = cfg.on ? "var(--teal)" : "var(--card)";
+  $("aiCb").style.color = cfg.on ? "#fff" : "var(--ink)";
+
+  preset.addEventListener("change", () => applyPreset(preset.value));
+  onChk.addEventListener("change", () => {
+    $("aiCb").style.background = onChk.checked ? "var(--teal)" : "var(--card)";
+    $("aiCb").style.color = onChk.checked ? "#fff" : "var(--ink)";
+  });
+
+  saveBtn.addEventListener("click", () => {
+    S.aiConfig = {
+      on: !!onChk.checked,
+      preset: preset.value,
+      base: (baseI.value || "").trim(),
+      model: (modelI.value || "").trim(),
+      key: (keyI.value || "").trim()
+    };
+    save();
+    toast(S.aiConfig.on ? "AI 讲解已开启，翻面后试试" : "AI 讲解已关闭");
+  });
+
+  testBtn.addEventListener("click", async () => {
+    status.textContent = "测试中…";
+    /* 先用界面上的值临时试，不必先点保存 */
+    const backup = S.aiConfig;
+    S.aiConfig = { on: true, preset: preset.value, base: baseI.value.trim(), model: modelI.value.trim(), key: keyI.value.trim() };
+    try {
+      await aiPing();
+      status.textContent = "✅ 连通正常";
+    } catch (e) {
+      status.textContent = "❌ " + e.message;
+    } finally {
+      S.aiConfig = backup;
+    }
+  });
+})();
+
 renderBanks();
 renderQuota();

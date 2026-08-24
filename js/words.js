@@ -143,6 +143,22 @@ function reveal() {
     b.addEventListener("click", () => grade(g.key));
     act.appendChild(b);
   });
+  /* AI 讲词（增强模块，未启用不出现） */
+  if (typeof aiEnabled === "function" && aiEnabled()) {
+    const cached = (S.aiCache || {})[current.w];
+    const aib = document.createElement("button");
+    aib.id = "aiBtn";
+    aib.className = "btn btn-blue btn-sm";
+    aib.textContent = cached ? "✨ AI 讲解 · 已缓存" : "✨ AI 讲解";
+    aib.addEventListener("click", () => aiExplain(current));
+    act.appendChild(aib);
+    const boxWrap = document.createElement("div");
+    boxWrap.className = "x-block";
+    boxWrap.id = "aiBox";
+    boxWrap.classList.add("hidden-extra");
+    boxWrap.style.marginTop = "10px";
+    $("fcExtra").appendChild(boxWrap);
+  }
 }
 
 function grade(k) {

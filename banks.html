@@ -57,6 +57,40 @@
     </div>
   </div>
   <div class="box quota-box">
+    <div class="quota-title">✨ AI 讲解设置</div>
+    <p class="modal-note" style="margin-bottom:10px;">开启后单词卡翻面会出现「AI 讲解」：词根联想、易混辨析、场景例句。支持任意 OpenAI 兼容接口（智谱 / DeepSeek / Kimi / 通义 / SiliconFlow）。两种模式二选一：</p>
+    <p class="modal-note" style="margin-bottom:6px;"><b>① 本地 Key 模式</b>——key 只存本机浏览器，请求从浏览器直连服务商：</p>
+    <div class="quota-row" style="margin-bottom:8px;">
+      <select id="aiPreset" class="mono" style="border:var(--bw) solid var(--ink);background:var(--card);padding:8px;font-weight:800;min-height:44px;">
+        <option value="zhipu">智谱 GLM（免费）</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="kimi">Kimi</option>
+        <option value="qwen">通义千问</option>
+        <option value="siliconflow">SiliconFlow</option>
+        <option value="custom">自定义</option>
+      </select>
+      <input type="text" id="aiBaseInput" placeholder="API Base URL，如 https://api.deepseek.com/v1"
+             style="flex:1;min-width:220px;border:var(--bw) solid var(--ink);border-radius:var(--radius);padding:8px 10px;background:var(--card);font-weight:600;">
+      <input type="text" id="aiModelInput" placeholder="模型名"
+             style="width:150px;border:var(--bw) solid var(--ink);border-radius:var(--radius);padding:8px 10px;background:var(--card);font-weight:600;">
+    </div>
+    <div class="quota-row" style="margin-bottom:8px;">
+      <input type="password" id="aiKeyInput" placeholder="API Key（sk-…，仅保存在本浏览器）"
+             style="flex:1;min-width:220px;border:var(--bw) solid var(--ink);border-radius:var(--radius);padding:8px 10px;background:var(--card);">
+      <span class="modal-note" style="margin:0;">每日上限 30 次 · 结果缓存离线可用</span>
+    </div>
+    <p class="modal-note" style="margin-bottom:6px;"><b>② 服务器代理模式</b>——什么都不填，只开开关；需站长在 Cloudflare Pages 环境变量配置 AI_API_KEY：</p>
+    <div class="quota-row">
+      <label class="check-item" for="aiOnChk" style="border:none;padding:6px 0;">
+        <span class="cb" id="aiCb">✓</span><span>启用 AI 讲解</span>
+      </label>
+      <button class="btn btn-teal btn-sm" id="aiSave">保存</button>
+      <button class="btn btn-yellow btn-sm" id="aiTestBtn">测试连通</button>
+      <span class="mono" id="aiStatus" style="font-size:.75rem;color:var(--muted);"></span>
+    </div>
+  </div>
+
+  <div class="box quota-box">
     <div class="quota-title">背词设置</div>
     <div class="quota-row">
       <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.92rem;cursor:pointer;">
@@ -82,6 +116,7 @@
 <script src="js/bank-exam.js"></script>
 <script src="js/bank-full.js"></script>
 <script src="js/store.js"></script>
+<script src="js/ai.js"></script>
 <script src="js/app.js"></script>
 <script src="js/banks.js"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js")})}</script>

@@ -6,8 +6,8 @@ const fs = require("fs"), path = require("path");
 const read = f => fs.readFileSync(path.join(__dirname, f), "utf8");
 
 const PAGE_SCRIPTS = {
-  "index.html": ["js/store.js", "js/app.js", "js/words.js"],
-  "banks.html": ["js/store.js", "js/app.js", "js/banks.js"],
+  "index.html": ["js/store.js", "js/ai.js", "js/app.js", "js/words.js"],
+  "banks.html": ["js/store.js", "js/ai.js", "js/app.js", "js/banks.js"],
   "plan.html":  ["js/store.js", "js/app.js", "js/plan.js"],
   "stats.html": ["js/store.js", "js/app.js", "js/stats.js"],
   "exam.html":  ["js/store.js", "js/app.js", "js/exam.js"]
