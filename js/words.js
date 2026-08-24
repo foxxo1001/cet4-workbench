@@ -178,7 +178,7 @@ function grade(k) {
   S.stats[k] = (S.stats[k] || 0) + 1;
   S.stats.reviews = (S.stats.reviews || 0) + 1;
   markCheckinAuto();
-  toast(isNew ? "新词已入队复习" : (k === "good" ? "很好，间隔拉长" : "已安排近期复习"));
+  toast(k === "good" ? "很好，间隔拉长" : (isNew ? "新词已入队复习" : "已安排近期复习"));
   nextCard();
 }
 
