@@ -43,10 +43,8 @@ let S = loadState() || {
   if (typeof S.dailyReviewCap !== "number" || S.dailyReviewCap < 1) S.dailyReviewCap = 100;
 })();
 
-if (typeof window.CET_BANKS === "undefined" || !window.CET_BANKS[S.bankId]) S.bankId = "core";
-if (!window.CET_BANKS[S.bankId]) window.CET_BANKS = window.CET_BANKS || {};
-if (!window.CET_BANKS[S.bankId]) window.CET_BANKS[S.bankId] = null;
-// 保证活动词库存在
+window.CET_BANKS = window.CET_BANKS || {};
+if (!S.bankId || !window.CET_BANKS[S.bankId]) S.bankId = "core";
 if (!window.CET_BANKS["core"]) window.CET_BANKS["core"] = { id: "core", name: "核心", list: [] };
 const ACTIVE_BANK = () => window.CET_BANKS[S.bankId] || window.CET_BANKS["core"];
 if (!S.banks[S.bankId] || typeof S.banks[S.bankId] !== "object") S.banks[S.bankId] = {};

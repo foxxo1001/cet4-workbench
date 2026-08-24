@@ -19,7 +19,7 @@ let cur = null;
 let answered = false;
 let scoreGood = 0, scoreBad = 0;
 
-const $ = id => document.getElementById(id);
+// 复用 app.js 的 $（同页已声明 const $）
 
 function refillPool() {
   // 未做过的题优先；全做完后洗牌重来
