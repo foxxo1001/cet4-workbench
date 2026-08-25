@@ -48,7 +48,8 @@ export async function onRequestPost(context) {
           { role: "user", content: user.slice(0, 4000) }
         ],
         temperature: 0.8,
-        max_tokens: 900
+        /* hy3-free 为推理模型（先思考后作答），token 上限给足避免答案被思考占满而截断 */
+        max_tokens: 4000
       })
     });
     if (!res.ok) {
