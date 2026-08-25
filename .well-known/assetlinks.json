@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "cn.foxxo1001.cet4workbench",
+    "sha256_cert_fingerprints": [
+      "27:8A:11:76:C0:D5:45:7B:71:F3:DC:2F:2F:47:2A:CA:27:0F:77:F1:F9:8E:1E:D4:2F:FC:90:03:F0:5B:38:4D"
+    ]
+  }
+}]
