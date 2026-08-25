@@ -125,8 +125,9 @@ function boot(store) {
     S.banks.core.gamma = { box: 1, due: past };
     await t.api.aiGeneratePassage(false);
     const b = t.bodies[0].body;
-    ok(/v1\/chat\/completions/.test(t.bodies[0].url), "本地直连 URL 正确");
-    ok(/外刊/.test(b.messages[0].content || ""), "system 含外刊要求 (实际 " + String(b.messages[0].content).slice(0, 40) + "…)");
+    ok(/\/api\/ai/.test(t.bodies[0].url), "统一代理通道 /api/ai");
+    ok(/外刊/.test(b.system || ""), "system 含外刊要求 (实际 " + String(b.system || "").slice(0, 40) + "…)");
+    ok(b.key === "sk-z" && /opencode\.ai\/zen\/v1$/.test(b.base || ""), "自定义凭证随请求透传且 base 已纠错");
   }
 
   /* 4. 未启用 → 区块隐藏 */
