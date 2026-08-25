@@ -49,7 +49,19 @@ const jsonRes = (body, status) => ({
     ok(r.status === 200 && b.content === "【词根】abc", "上游成功 → 返回 content");
     ok(/chat\/completions$/.test(captured.url), "转发到 {base}/chat/completions (" + captured.url + ")");
     ok(captured.auth === "Bearer sk-test", "Authorization Bearer 正确");
-    ok(captured.opts.model === "m-1" && captured.opts.messages[1].content === "讲解 absorb", "model 与用户消息透传");
+    ok(captured.opts.model === "m-1", "model 透传");
+    ok(captured.opts.messages.some(m2 => m2.role === "user" && m2.content === "讲解 absorb"), "用户消息透传");
+    /* base 纠错 */
+    {
+      const upstream2 = async (url) => { captured = { url }; return jsonRes({ choices: [{ message: { content: "x" } }] }); };
+      const f2 = loadFn({ AI_API_KEY: "k" }, upstream2);
+      await f2.onRequestPost({
+        request: { json: async () => ({ user: "u", key: "sk-z", base: "https://opencode.ai/zen/v1/models" }) },
+        env: { AI_API_KEY: "env-k" }
+      });
+      ok(captured.url === "https://opencode.ai/zen/v1/chat/completions",
+         "base 尾部 /models 自动纠正 (" + captured.url + ")");
+    }
   }
 
   /* A3 上游挂了 → 502 */

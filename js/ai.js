@@ -33,8 +33,14 @@ const PASSAGE_SYS =
 function aiEnabled() {
   return !!(S.aiConfig && S.aiConfig.on);
 }
-function aiLocalMode() {          // 本地填了 key+base → 浏览器直连
+function aiLocalMode() {          // 本地填了 key+base → 随代理请求透传自己的凭证
   return !!(S.aiConfig && (S.aiConfig.key || "").trim() && (S.aiConfig.base || "").trim());
+}
+/* base 纠错：去掉结尾 /chat/completions、/models、多余斜杠（用户常从文档复制错） */
+function aiSanitizeBase(raw) {
+  let b = String(raw || "").trim().replace(/\/+$/, "");
+  b = b.replace(/\/(chat\/completions|models|embeddings)$/i, "");
+  return b;
 }
 function aiEnsureCount() {
   const t = todayStr();
@@ -54,25 +60,19 @@ function aiUserPrompt(rec) {
 
 async function aiCall(user, systemPrompt) {
   const sys = systemPrompt || AI_SYS;
-  let res;
+  /* 统一走 /api/ai 代理：本地填了 key 就随请求透传（服务端转发，绕开浏览器 CORS），
+     未填则用站长配置的环境变量凭证。任何 OpenAI 兼容服务商都可达 */
+  const payload = { user, system: sys };
   if (aiLocalMode()) {
-    const base = S.aiConfig.base.replace(/\/+$/, "");
-    res = await fetch(base + "/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + S.aiConfig.key.trim() },
-      body: JSON.stringify({
-        model: (S.aiConfig.model || "").trim() || "glm-4-flash",
-        messages: [{ role: "system", content: sys }, { role: "user", content: user }],
-        temperature: 0.8, max_tokens: 900
-      })
-    });
-  } else {
-    res = await fetch("/api/ai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, system: sys })
-    });
+    payload.key = S.aiConfig.key.trim();
+    payload.base = aiSanitizeBase(S.aiConfig.base);
+    payload.model = (S.aiConfig.model || "").trim();
   }
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
   let data = null;
   try { data = await res.json(); } catch (e) {}
   if (!res.ok) throw new Error((data && data.error) || ("HTTP " + res.status));

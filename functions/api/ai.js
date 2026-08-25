@@ -1,11 +1,10 @@
 /* AI 代理端点（Cloudflare Pages Functions：functions/api/ai.js → POST /api/ai）
-   - 密钥存在 Pages 环境变量 AI_API_KEY，绝不进入前端代码
-   - 转发到任意 OpenAI 兼容接口：AI_BASE_URL（默认智谱 GLM）+ AI_MODEL（默认 glm-4-flash）
-   - 前端在「词库」页填了自己的 key 时不会走到这里（浏览器直连） */
-const AI_SYS =
-  "你是 CET-4 英语词汇老师。用中文紧凑回答：【记忆】词根词缀拆解或联想记忆法；" +
-  "【辨析】1-2 个易混词对比或高频搭配；【场景】一个校园/考试相关的中文例句（英文原词保留）。" +
-  "不超过 180 字，不要寒暄。结尾注明：AI 生成仅供参考。";
+   - 双模式：
+     A) 用户在设置页填了自己的 key/base/model → 随请求透传，服务端转发（绕开浏览器 CORS 限制），不存储
+     B) 未填 → 用 Pages 环境变量 AI_API_KEY（站长配置）
+   - base 自动纠错：去掉结尾的 /chat/completions、/models、多余斜杠 */
+const DEFAULT_BASE = "https://open.bigmodel.cn/api/paas/v4";
+const DEFAULT_MODEL = "glm-4-flash";
 
 function json(body, status) {
   return new Response(JSON.stringify(body), {
@@ -14,19 +13,29 @@ function json(body, status) {
   });
 }
 
+function sanitizeBase(raw) {
+  let b = String(raw || "").trim().replace(/\/+$/, "");
+  b = b.replace(/\/(chat\/completions|models|embeddings)$/i, "");
+  return b;
+}
+
 export async function onRequestPost(context) {
   const env = context.env || {};
-  const key = env.AI_API_KEY;
-  if (!key) {
-    return json({ error: "AI_API_KEY 未配置：请在 Cloudflare Pages 项目 Settings > Environment variables 里添加" }, 500);
-  }
-  const base = String(env.AI_BASE_URL || "https://open.bigmodel.cn/api/paas/v4").replace(/\/+$/, "");
-  const model = String(env.AI_MODEL || "glm-4-flash");
-
-  let user;
-  try { user = String((await context.request.json()).user || ""); }
+  let body;
+  try { body = await context.request.json(); }
   catch (e) { return json({ error: "请求体无效" }, 400); }
-  if (!user.trim()) return json({ error: "缺少提问内容" }, 400);
+
+  const user = String((body && body.user) || "").trim();
+  const system = String((body && body.system) || "").trim();
+  if (!user) return json({ error: "缺少提问内容" }, 400);
+
+  /* 凭证解析：请求自带优先，环境变量兜底 */
+  const key = String((body && body.key) || "").trim() || env.AI_API_KEY;
+  if (!key) {
+    return json({ error: "未配置 AI 凭证：请在设置页填写 API Key，或由站长配置环境变量 AI_API_KEY" }, 500);
+  }
+  const base = sanitizeBase(body && body.base) || sanitizeBase(env.AI_BASE_URL) || DEFAULT_BASE;
+  const model = String((body && body.model) || "").trim() || String(env.AI_MODEL || "").trim() || DEFAULT_MODEL;
 
   try {
     const res = await fetch(base + "/chat/completions", {
@@ -35,14 +44,17 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         model,
         messages: [
-          { role: "system", content: AI_SYS },
-          { role: "user", content: user.slice(0, 2000) }
+          ...(system ? [{ role: "system", content: system }] : []),
+          { role: "user", content: user.slice(0, 4000) }
         ],
-        temperature: 0.7,
-        max_tokens: 600
+        temperature: 0.8,
+        max_tokens: 900
       })
     });
-    if (!res.ok) return json({ error: "上游服务错误 HTTP " + res.status }, 502);
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      return json({ error: "上游服务错误 HTTP " + res.status + (detail ? "：" + detail.slice(0, 160) : "") }, 502);
+    }
     const data = await res.json();
     const content = data && data.choices && data.choices[0] &&
       data.choices[0].message && data.choices[0].message.content;
