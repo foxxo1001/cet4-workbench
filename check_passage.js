@@ -127,7 +127,7 @@ function boot(store) {
     const b = t.bodies[0].body;
     ok(/\/api\/ai/.test(t.bodies[0].url), "统一代理通道 /api/ai");
     ok(/外刊/.test(b.system || ""), "system 含外刊要求 (实际 " + String(b.system || "").slice(0, 40) + "…)");
-    ok(b.key === "sk-z" && /opencode\.ai\/zen\/v1$/.test(b.base || ""), "自定义凭证随请求透传且 base 已纠错");
+    ok(b.key === "sk-z" && /api\.x\.com\/v1$/.test(b.base || ""), "自定义凭证随请求透传且 base 规范");
   }
 
   /* 4. 未启用 → 区块隐藏 */
